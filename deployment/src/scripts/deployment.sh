@@ -43,7 +43,7 @@ ENVFILE=/home/hduser/dba/bin/environment.ksh
 #set -e
 pyspark_venv="pyspark_venv"
 source_code="genai"
-HDFS_HOST="50.140.197.220"
+HDFS_HOST="rhes75"
 HDFS_PORT="9000"
 property_file="/home/hduser/dba/bin/build/properties"
 IMAGE="pytest-repo/spark-py:3.1.1"
