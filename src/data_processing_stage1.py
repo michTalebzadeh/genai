@@ -1,3 +1,4 @@
+
 import sys
 import os
 import datetime
@@ -56,6 +57,8 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adagrad
 from pyspark.sql.functions import regexp_replace
+from tensorflow.keras import regularizers
+
 
 
 # Global variable for PNG directory
@@ -501,10 +504,14 @@ class DataFrameProcessor:
         kl_loss = -0.5 * K.sum(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
         vae_loss = K.mean(reconstruction_loss + kl_loss)
 
+        
         # Add the VAE loss to the model
         vae.add_loss(vae_loss)
 
         # Compile the VAE model with an optimizer
+        optimizer = tf.keras.optimizers.Adam(clipvalue=1.0)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=1e-4)
+
         vae.compile(optimizer='adam')
 
         # Return the compiled VAE model
@@ -681,7 +688,9 @@ class VAEImputer:
         inputs = layers.Input(shape=(self.input_dim,))
         h = layers.Dense(self.intermediate_dim, activation='relu')(inputs)
         z_mean = layers.Dense(self.latent_dim)(h)
-        z_log_var = layers.Dense(self.latent_dim)(h)
+        #z_log_var = layers.Dense(self.latent_dim)(h)
+        z_log_var = Dense(latent_dim, kernel_regularizer=regularizers.l2(1e-4))(h)
+        z_log_var = K.clip(z_log_var, -10, 10)
 
         # Sampling layer using the reparameterization trick
         def sampling(args):
